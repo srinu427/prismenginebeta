@@ -76,7 +76,7 @@ private:
 	std::unordered_map<std::string, VkDescriptorSetLayout> dSetLayouts;
 	std::unordered_map<std::string, GPUPipeline> pipelines;
 	std::unordered_map<std::string, Mesh> meshes;
-	std::unordered_map<std::string, GPUImage> textures;
+	std::unordered_map<std::string, GPUTexture2d> textures;
 	std::unordered_map<std::string, VkSampler> texSamplers;
 
 	std::vector<GPUBuffer> uniformBuffers;
@@ -135,7 +135,7 @@ private:
 
 	void createBasicSamplers();
 	Mesh* addMesh(std::string meshFilePath);
-	GPUImage* loadTexture(std::string texturePath);
+	GPUTexture2d* loadTexture(std::string texturePath, std::string texSamplerType);
 
 	void cleanupSwapChain(bool destroy_only_swapchain);
 	void cleanup();

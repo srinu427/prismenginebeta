@@ -1,5 +1,6 @@
 #include "PrismInputs.h"
 #include "PrismRenderer.h"
+#include "PrismAudioManager.h"
 #include "LogicManager.h"
 #include <algorithm>
 #include <thread>
@@ -11,6 +12,7 @@
 
 struct PrismAppComponents {
     PrismRenderer* renderer = NULL;
+    PrismAudioManager* audman = NULL;
     PrismInputs* inputmgr = NULL;
     LogicManager* logicmgr = NULL;
 };
@@ -54,13 +56,16 @@ int main() {
     // Init input manager and renderer
     PrismInputs inputmgr = PrismInputs();
     appComps.inputmgr = &inputmgr;
-    std::cout << "inputmgr init complete" << std::endl;
+    std::cout << "input manager init complete" << std::endl;
     PrismRenderer renderer = PrismRenderer(window, nextFrameCallBack);
     appComps.renderer = &renderer;
     std::cout << "renderer init complete" << std::endl;
-    LogicManager logicmgr = LogicManager(&inputmgr, 1);
+    PrismAudioManager audman = PrismAudioManager();
+    appComps.audman = &audman;
+    std::cout << "audio manager init complete" << std::endl;
+    LogicManager logicmgr = LogicManager(&inputmgr, &audman, 1);
     appComps.logicmgr = &logicmgr;
-    std::cout << "logicmgr init complete" << std::endl;
+    std::cout << "logic manager init complete" << std::endl;
 
     // Give addresses of renderer and input manager, so callbacks can use them
     glfwSetWindowUserPointer(window, &appComps);

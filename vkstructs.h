@@ -143,6 +143,11 @@ struct GPUImage {
 	VkImageView _imageView;
 };
 
+struct GPUTexture2d {
+	GPUImage _gImage;
+	VkDescriptorSet _dSet;
+};
+
 struct GPUCameraData {
 	glm::vec4 camPos;
 	glm::vec4 camDir;
@@ -178,8 +183,7 @@ class RenderObject {
 public:
 	std::string id;
 	Mesh* mesh;
-	GPUImage* texture;
-	VkDescriptorSet texDSet;
+	GPUTexture2d* texture;
 	GPUObjectData uboData;
 	bool renderable = true;
 	bool shadowcasting = true;

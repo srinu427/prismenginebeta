@@ -9,9 +9,10 @@
 
 using namespace collutils;
 
-LogicManager::LogicManager(PrismInputs* ipmgr, int logicpolltime_ms)
+LogicManager::LogicManager(PrismInputs* ipmgr, PrismAudioManager* audman, int logicpolltime_ms)
 {
 	inputmgr = ipmgr;
+    audiomgr = audman;
     if (logicpolltime_ms != 0) logicPollTime = logicpolltime_ms;
     init();
 }
@@ -44,10 +45,10 @@ void LogicManager::init()
     room.objLRS.location = glm::vec3(0.0f, 0.0f, 0.0f);
     room.objLRS.scale = glm::vec3{ 1.0f };
 
-    ObjectLogicData floor;
-    floor.id = "floor";
-    floor.modelFilePath = "models/floor.obj";
-    floor.texFilePath = "textures/floor_tile_2.png";
+    //ObjectLogicData floor;
+    //floor.id = "floor";
+    //floor.modelFilePath = "models/floor.obj";
+    //floor.texFilePath = "textures/floor_tile_2.png";
 
     ObjectLogicData light;
     light.id = "light";
@@ -61,6 +62,7 @@ void LogicManager::init()
 
     lObjects["room"] = room;
     newObjQueue.push_back("room");
+
     /*
     lObjects["floor"] = floor;
     newObjQueue.push_back("floor");
@@ -127,8 +129,6 @@ void LogicManager::init()
     plights[0] = glm::vec4(1.5, 1.5, 1.5, 1.0);
     plights[1] = glm::vec4(1.5, 1.5, 1.5, 1.0);
 
-
-
     //add ground
     ConvexPolyPlane ground = ConvexPolyPlane(glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), glm::vec3(1, 0, 0), 30, 30, 0.1, 10);
     static_bounds.push_back(ground);
@@ -142,16 +142,30 @@ void LogicManager::init()
     static_bounds.push_back(wall_col);
     wall_col = ConvexPolyPlane(glm::vec3(0, 2.5, 5), glm::vec3(-1, 0, 0), glm::vec3(0, 1, 1), 30, 30, 0.1, 10);
     static_bounds.push_back(wall_col);
+    std::vector<ConvexPolyPlane> cube1 = gen_cube_bplanes(glm::vec3(-2, 0.25, -2), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 1, 0.5, 1, 0.1, 10);
+    static_bounds.insert(static_bounds.begin(), cube1.begin(), cube1.end());
+    cube1 = gen_cube_bplanes(glm::vec3(-2, 0.75, -1), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 1, 0.5, 1, 0.1, 10);
+    static_bounds.insert(static_bounds.begin(), cube1.begin(), cube1.end());
+    cube1 = gen_cube_bplanes(glm::vec3(-2, 1.25, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 1, 0.5, 1, 0.1, 10);
+    static_bounds.insert(static_bounds.begin(), cube1.begin(), cube1.end());
+    cube1 = gen_cube_bplanes(glm::vec3(-3, 1.25, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 1, 0.5, 1, 0.1, 10);
+    static_bounds.insert(static_bounds.begin(), cube1.begin(), cube1.end());
+    cube1 = gen_cube_bplanes(glm::vec3(-4, 1.75, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 1, 0.5, 1, 0.1, 10);
+    static_bounds.insert(static_bounds.begin(), cube1.begin(), cube1.end());
 
     for (int sbi = 0; sbi < static_bounds.size(); sbi++) {
         new_bp_meshes.push_back(static_bounds[sbi].gen_mesh());
     }
     
-
     //add player
     player.pos = glm::vec3(1, 1, 1);
     player.vel = glm::vec3(0, 0, 0);
     player.acc = glm::vec3(0, -10, 0);
+
+    audiomgr->add_aud_buffer("jump", "sounds/drum1.wav");
+    audiomgr->add_aud_source("player");
+    audiomgr->add_aud_source("1");
+    audiomgr->update_listener(player.pos, player.vel, currentCamDir, currentCamUp);
 }
 
 void LogicManager::run()
@@ -274,6 +288,8 @@ void LogicManager::computeLogic(std::chrono::system_clock::time_point curr_time,
     }
     if (inputmgr->wasKeyPressed(GLFW_KEY_SPACE) and ground_touch) {
         player.vel.y = 5;
+        //audiomgr->update_aud_source("1", player.pos, glm::vec3(0));
+        audiomgr->play_aud_buffer_from_source("player", "jump");
     }
     //if (inputmgr->wasKeyPressed(GLFW_KEY_LEFT_CONTROL)) playVel = playVel - crely * (CAM_SPEED * logicDeltaT);
 
@@ -291,6 +307,9 @@ void LogicManager::computeLogic(std::chrono::system_clock::time_point curr_time,
             glm::radians(MOUSE_SENSITIVITY_Y * float(inputmgr->dmy)),
             crelx) * glm::vec4(currentCamDir, 0.0f));
     }
+    audiomgr->update_aud_source("player", player.pos, player.vel);
+    audiomgr->update_listener(player.pos, player.vel, currentCamDir, currentCamUp);
+    
     lObjects["obama"].updateAnim("rotateprism", int(logicDeltaT * 1000));
 
     inputmgr->clearMOffset();

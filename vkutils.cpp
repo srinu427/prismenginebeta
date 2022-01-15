@@ -856,6 +856,7 @@ VkDescriptorSet vkutils::createSingleDSet(
 	dSetWrite.descriptorType = dType;
 	dSetWrite.descriptorCount = 1;
 	dSetWrite.pBufferInfo = &dBufferInfo;
+	dSetWrite.pBufferInfo = &dBufferInfo;
 
 	vkUpdateDescriptorSets(device, 1, &dSetWrite, 0, NULL);
 
@@ -872,7 +873,9 @@ VkDescriptorSet vkutils::createImageDSet(VkDevice device, VkDescriptorPool dPool
 
 	VkDescriptorSet dSet;
 	VkResult vkr = vkAllocateDescriptorSets(device, &dSetAllocInfo, &dSet);
-	if (vkr != VK_SUCCESS) throw std::runtime_error("failed to allocate descriptor set!");
+	if (vkr != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor set!");
+	}
 
 	std::vector<VkDescriptorImageInfo> imageInfos;
 	for (int i = 0; i < images.size(); i++) {

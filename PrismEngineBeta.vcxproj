@@ -88,14 +88,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>G:\pugixml-1.11\src;G:\stb-master;G:\VulkanSDK\1.2.176.1\Include;G:\tinyobjloader-master;G:\glm;G:\glfw-3.3.4.bin.WIN64\include;D:\VulkanSDK\1.2.176.1\Include;D:\glfw-3.3.4.bin.WIN64\include;D:\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\openal-soft-1.21.1-bin\include;G:\pugixml-1.11\src;G:\stb-master;G:\VulkanSDK\1.2.176.1\Include;G:\tinyobjloader-master;G:\glm;G:\glfw-3.3.4.bin.WIN64\include;D:\VulkanSDK\1.2.176.1\Include;D:\glfw-3.3.4.bin.WIN64\include;D:\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>G:\VulkanSDK\1.2.176.1\Lib;G:\glfw-3.3.4.bin.WIN64\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>G:\openal-soft-1.21.1-bin\libs\Win64;G:\VulkanSDK\1.2.176.1\Lib;G:\glfw-3.3.4.bin.WIN64\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -106,7 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>G:\pugixml-1.11\src;G:\stb-master;G:\VulkanSDK\1.2.176.1\Include;G:\tinyobjloader-master;G:\glm;G:\glfw-3.3.4.bin.WIN64\include;D:\VulkanSDK\1.2.176.1\Include;D:\glfw-3.3.4.bin.WIN64\include;D:\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\openal-soft-1.21.1-bin\include;G:\pugixml-1.11\src;G:\stb-master;G:\VulkanSDK\1.2.176.1\Include;G:\tinyobjloader-master;G:\glm;G:\glfw-3.3.4.bin.WIN64\include;D:\VulkanSDK\1.2.176.1\Include;D:\glfw-3.3.4.bin.WIN64\include;D:\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -114,8 +114,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>G:\VulkanSDK\1.2.176.1\Lib;G:\glfw-3.3.4.bin.WIN64\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>G:\openal-soft-1.21.1-bin\libs\Win64;G:\VulkanSDK\1.2.176.1\Lib;G:\glfw-3.3.4.bin.WIN64\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -125,13 +125,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>G:\pugixml-1.11\src;G:\stb-master;G:\VulkanSDK\1.2.176.1\Include;G:\tinyobjloader-master;G:\glm;G:\glfw-3.3.4.bin.WIN64\include;D:\VulkanSDK\1.2.176.1\Include;D:\glfw-3.3.4.bin.WIN64\include;D:\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\openal-soft-1.21.1-bin\include;G:\pugixml-1.11\src;G:\stb-master;G:\VulkanSDK\1.2.176.1\Include;G:\tinyobjloader-master;G:\glm;G:\glfw-3.3.4.bin.WIN64\include;D:\VulkanSDK\1.2.176.1\Include;D:\glfw-3.3.4.bin.WIN64\include;D:\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>G:\VulkanSDK\1.2.176.1\Lib;G:\glfw-3.3.4.bin.WIN64\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>G:\openal-soft-1.21.1-bin\libs\Win64;G:\VulkanSDK\1.2.176.1\Lib;G:\glfw-3.3.4.bin.WIN64\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -142,7 +142,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>G:\pugixml-1.11\src;G:\stb-master;G:\VulkanSDK\1.2.176.1\Include;G:\tinyobjloader-master;G:\glm;G:\glfw-3.3.4.bin.WIN64\include;D:\VulkanSDK\1.2.176.1\Include;D:\glfw-3.3.4.bin.WIN64\include;D:\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>G:\openal-soft-1.21.1-bin\include;G:\pugixml-1.11\src;G:\stb-master;G:\VulkanSDK\1.2.176.1\Include;G:\tinyobjloader-master;G:\glm;G:\glfw-3.3.4.bin.WIN64\include;D:\VulkanSDK\1.2.176.1\Include;D:\glfw-3.3.4.bin.WIN64\include;D:\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -150,8 +150,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>G:\VulkanSDK\1.2.176.1\Lib;G:\glfw-3.3.4.bin.WIN64\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>G:\openal-soft-1.21.1-bin\libs\Win64;G:\VulkanSDK\1.2.176.1\Lib;G:\glfw-3.3.4.bin.WIN64\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -160,6 +160,7 @@
     <ClCompile Include="LogicManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjectLogicData.cpp" />
+    <ClCompile Include="PrismAudioManager.cpp" />
     <ClCompile Include="PrismInputs.cpp" />
     <ClCompile Include="PrismRenderer.cpp" />
     <ClCompile Include="vkstructs.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="CollisionStructs.h" />
     <ClInclude Include="LogicManager.h" />
     <ClInclude Include="ObjectLogicData.h" />
+    <ClInclude Include="PrismAudioManager.h" />
     <ClInclude Include="PrismInputs.h" />
     <ClInclude Include="PrismRenderer.h" />
     <ClInclude Include="vkstructs.h" />

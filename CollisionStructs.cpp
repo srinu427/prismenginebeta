@@ -22,7 +22,7 @@ collutils::ConvexPolyPlane::ConvexPolyPlane(std::vector<glm::vec3> polyPoints, f
 collutils::ConvexPolyPlane::ConvexPolyPlane(glm::vec3 rectCenter, glm::vec3 u, glm::vec3 v, float lenU, float lenV, float thickness, float planeFriction)
 {
 	glm::vec3 ua = 0.5f * lenU * glm::normalize(u);
-	glm::vec3 va = 0.5f * lenU * glm::normalize(v);
+	glm::vec3 va = 0.5f * lenV * glm::normalize(v);
 	points.push_back(rectCenter - ua - va);
 	points.push_back(rectCenter + ua - va);
 	points.push_back(rectCenter + ua + va);
@@ -35,7 +35,7 @@ collutils::ConvexPolyPlane::ConvexPolyPlane(glm::vec3 rectCenter, glm::vec3 u, g
 Mesh collutils::ConvexPolyPlane::gen_mesh() {
 	std::vector<Vertex> vlist = std::vector<Vertex>((sides - 2) * 3);
 	glm::vec3 uaxn = glm::normalize(rays[0]);
-	glm::vec3 vaxn = glm::cross(rays[0], n);
+	glm::vec3 vaxn = glm::cross(n, rays[0]);
 	for (int ti = 0; ti < sides - 2; ti++) {
 		vlist[3 * ti].pos = points[0];
 		vlist[3 * ti].normal = n;
@@ -264,7 +264,7 @@ collutils::KinePointObj collutils::progress_kinematics(KinePointObj kpo, std::ve
 	return outData;
 }
 
-std::vector<collutils::ConvexPolyPlane> collutils::gen_cube_bplanes(glm::vec3 ccenter, glm::vec3 uax, glm::vec3 vax, float ulen, float vlen, float tlen, float face_thickness)
+std::vector<collutils::ConvexPolyPlane> collutils::gen_cube_bplanes(glm::vec3 ccenter, glm::vec3 uax, glm::vec3 vax, float ulen, float vlen, float tlen, float face_thickness, float face_friction)
 {
 	std::vector<ConvexPolyPlane> plout;
 
@@ -272,12 +272,12 @@ std::vector<collutils::ConvexPolyPlane> collutils::gen_cube_bplanes(glm::vec3 cc
 	glm::vec3 vaxn = glm::normalize(vax);
 	glm::vec3 taxn = glm::cross(uaxn, vaxn);
 
-	plout.push_back(ConvexPolyPlane(ccenter + (0.5f * ulen * uaxn), vaxn, taxn, vlen, tlen, face_thickness, 0.0f));
-	plout.push_back(ConvexPolyPlane(ccenter - (0.5f * ulen * uaxn), vaxn, -taxn, vlen, tlen, face_thickness, 0.0f));
-	plout.push_back(ConvexPolyPlane(ccenter + (0.5f * vlen * vaxn), taxn, uaxn, tlen, ulen, face_thickness, 0.0f));
-	plout.push_back(ConvexPolyPlane(ccenter - (0.5f * vlen * vaxn), taxn, -uaxn, tlen, ulen, face_thickness, 0.0f));
-	plout.push_back(ConvexPolyPlane(ccenter + (0.5f * tlen * taxn), uaxn, vaxn, ulen, vlen, face_thickness, 0.0f));
-	plout.push_back(ConvexPolyPlane(ccenter - (0.5f * tlen * taxn), uaxn, -vaxn, ulen, vlen, face_thickness, 0.0f));
+	plout.push_back(ConvexPolyPlane(ccenter + (0.5f * ulen * uaxn), vaxn, taxn, vlen, tlen, face_thickness, face_friction));
+	plout.push_back(ConvexPolyPlane(ccenter - (0.5f * ulen * uaxn), vaxn, -taxn, vlen, tlen, face_thickness, face_friction));
+	plout.push_back(ConvexPolyPlane(ccenter + (0.5f * vlen * vaxn), taxn, uaxn, tlen, ulen, face_thickness, face_friction));
+	plout.push_back(ConvexPolyPlane(ccenter - (0.5f * vlen * vaxn), taxn, -uaxn, tlen, ulen, face_thickness, face_friction));
+	plout.push_back(ConvexPolyPlane(ccenter + (0.5f * tlen * taxn), uaxn, vaxn, ulen, vlen, face_thickness, face_friction));
+	plout.push_back(ConvexPolyPlane(ccenter - (0.5f * tlen * taxn), uaxn, -vaxn, ulen, vlen, face_thickness, face_friction));
 
 	return plout;
 }

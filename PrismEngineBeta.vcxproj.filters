@@ -42,6 +42,9 @@
     <ClCompile Include="DAEParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PrismAudioManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vkstructs.h">
@@ -63,6 +66,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CollisionStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PrismAudioManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

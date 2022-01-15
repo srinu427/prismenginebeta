@@ -67,5 +67,5 @@ namespace collutils {
 
 	KinePointObj progress_kinematics(KinePointObj kpo, std::vector<ConvexPolyPlane>* planes, int nfPlaneIdx, float fwd_time);
 
-	std::vector<ConvexPolyPlane> gen_cube_bplanes(glm::vec3 ccenter, glm::vec3 uax, glm::vec3 vax, float ulen, float vlen, float tlen, float face_thickness = 0.1);
+	std::vector<ConvexPolyPlane> gen_cube_bplanes(glm::vec3 ccenter, glm::vec3 uax, glm::vec3 vax, float ulen, float vlen, float tlen, float face_thickness = 0.1, float face_friction = 1);
 }

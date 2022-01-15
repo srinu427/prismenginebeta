@@ -1,18 +1,20 @@
 #pragma once
 #include "PrismInputs.h"
 #include "PrismRenderer.h"
+#include "PrismAudioManager.h"
 #include "ObjectLogicData.h"
 #include "CollisionStructs.h"
 
 class LogicManager
 {
 public:
-	LogicManager(PrismInputs* ipmgr, int logicpolltime_ms=1);
+	LogicManager(PrismInputs* ipmgr, PrismAudioManager* audman, int logicpolltime_ms=1);
 	void run();
 	void stop();
 	void pushToRenderer(PrismRenderer* renderer);
 private:
 	PrismInputs* inputmgr;
+	PrismAudioManager* audiomgr;
 	int logicPollTime = 1;
 	bool shouldStop = false;
 	float langle = 0;

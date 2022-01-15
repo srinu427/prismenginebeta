@@ -160,7 +160,7 @@ void PrismRenderer::createDescriptorPool() {
 	{
 		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 200 },
 		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 200 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 40 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 200 },
 		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 200 }
 	};
 
@@ -818,7 +818,7 @@ void PrismRenderer::addFinalMeshCmds(VkCommandBuffer cmdBuffer, int frameNo)
 				frameDatas[frameNo].setBuffers["camera"]._dSet,
 				frameDatas[frameNo].setBuffers["object"]._dSet,
 				frameDatas[frameNo].setBuffers["scene"]._dSet,
-				robj.texDSet,
+				robj.texture->_dSet,
 				frameDatas[frameNo].setBuffers["light"]._dSet,
 				frameDatas[frameNo].shadow_cube_dset
 			},
@@ -1137,14 +1137,15 @@ Mesh* PrismRenderer::addMesh(std::string meshFilePath)
 	return &meshes[meshFilePath];
 }
 
-GPUImage* PrismRenderer::loadTexture(std::string texturePath) {
+GPUTexture2d* PrismRenderer::loadTexture(std::string texturePath, std::string texSamplerType) {
 	int texWidth, texHeight, texChannels;
 	stbi_uc* pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 	if (!pixels) throw std::runtime_error("failed to load texture image!");
 
-	GPUImage tex = vkutils::createGPUImage(
+	GPUTexture2d tex;
+	tex._gImage = vkutils::createGPUImage(
 		device,
 		physicalDevice,
 		texWidth, texHeight,
@@ -1159,7 +1160,7 @@ GPUImage* PrismRenderer::loadTexture(std::string texturePath) {
 		device,
 		uploadCmdPool,
 		transferQueue,
-		tex._image,
+		tex._gImage._image,
 		VK_FORMAT_R8G8B8A8_SRGB,
 		VK_IMAGE_LAYOUT_UNDEFINED,
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -1173,7 +1174,7 @@ GPUImage* PrismRenderer::loadTexture(std::string texturePath) {
 		transferQueue,
 		imageSize,
 		pixels,
-		tex,
+		tex._gImage,
 		{ 0, 0, 0 },
 		{ (uint32_t)texWidth, (uint32_t)texHeight, 1 }
 	);
@@ -1182,12 +1183,20 @@ GPUImage* PrismRenderer::loadTexture(std::string texturePath) {
 		device,
 		uploadCmdPool,
 		transferQueue,
-		tex._image,
+		tex._gImage._image,
 		VK_FORMAT_R8G8B8A8_SRGB,
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 		VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
 		VK_PIPELINE_STAGE_ALL_COMMANDS_BIT
+	);
+	tex._dSet = vkutils::createImageDSet(
+		device,
+		descriptorPool,
+		dSetLayouts["frag_sampler"],
+		{ tex._gImage },
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		texSamplers["linear"]
 	);
 	textures[texturePath] = tex;
 	return &textures[texturePath];
@@ -1213,19 +1222,11 @@ void PrismRenderer::addRenderObj(
 	if (meshit == meshes.end()) robj.mesh = addMesh(meshFilePath);
 	else robj.mesh = &(*meshit).second;
 
-	GPUImage* texImg;
+	GPUTexture2d* texdata;
 	auto texit = textures.find(texFilePath);
-	if (texit == textures.end()) texImg = loadTexture(texFilePath);
-	else texImg = &(*texit).second;
-	robj.texture = texImg;
-	robj.texDSet = vkutils::createImageDSet(
-		device,
-		descriptorPool,
-		dSetLayouts["frag_sampler"],
-		{ *texImg },
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-		texSamplers["linear"]
-	);
+	if (texit == textures.end()) texdata = loadTexture(texFilePath, texSamplerType);
+	else texdata = &(*texit).second;
+	robj.texture = texdata;
 	renderObjects.push_back(robj);
 
 	refreshFinalCmdBuffers();
@@ -1271,19 +1272,12 @@ void PrismRenderer::addRenderObj(
 	}
 	robj.mesh = &(*meshit).second;
 
-	GPUImage* texImg;
+	GPUTexture2d* texdata;
 	auto texit = textures.find(texFilePath);
-	if (texit == textures.end()) texImg = loadTexture(texFilePath);
-	else texImg = &(*texit).second;
-	robj.texture = texImg;
-	robj.texDSet = vkutils::createImageDSet(
-		device,
-		descriptorPool,
-		dSetLayouts["frag_sampler"],
-		{ *texImg },
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-		texSamplers["linear"]
-	);
+	if (texit == textures.end()) texdata = loadTexture(texFilePath, texSamplerType);
+	else texdata = &(*texit).second;
+	robj.texture = texdata;
+
 	renderObjects.push_back(robj);
 
 	refreshFinalCmdBuffers();
@@ -1340,7 +1334,7 @@ void PrismRenderer::cleanup()
 	vkDestroyDescriptorPool(device, descriptorPool, NULL);
 	for (auto it : texSamplers) vkDestroySampler(device, it.second, NULL);
 	texSamplers.clear();
-	for (auto it : textures) vkutils::destroyGPUImage(device, it.second);
+	for (auto it : textures) vkutils::destroyGPUImage(device, it.second._gImage);
 	textures.clear();
 	for (auto it : pipelines) {
 		vkDestroyPipeline(device, it.second._pipeline, NULL);
