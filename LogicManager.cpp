@@ -161,8 +161,10 @@ void LogicManager::init()
     player.pos = glm::vec3(1, 1, 1);
     player.vel = glm::vec3(0, 0, 0);
     player.acc = glm::vec3(0, -10, 0);
+    in_air = true;
 
-    audiomgr->add_aud_buffer("jump", "sounds/drum1.wav");
+    audiomgr->add_aud_buffer("jump", "sounds/jump1.wav");
+    audiomgr->add_aud_buffer("fall", "sounds/fall1.wav");
     audiomgr->add_aud_source("player");
     audiomgr->add_aud_source("1");
     audiomgr->update_listener(player.pos, player.vel, currentCamDir, currentCamUp);
@@ -277,15 +279,27 @@ void LogicManager::computeLogic(std::chrono::system_clock::time_point curr_time,
             player.acc.z = 0;
         }
         else {
-            if (glm::dot(player.vel, glm::normalize(inp_vel)) < glm::length(inp_vel) * 0.5f) {
+            if (glm::dot(player.vel, glm::normalize(inp_vel)) < glm::length(inp_vel) * 1.0f) {
                 player.acc = glm::vec3(0, player.acc.y, 0) + glm::vec3(inp_vel.x, 0, inp_vel.z);
             }
         }
     }
+
     else {
         player.acc.x = 0;
         player.acc.z = 0;
     }
+
+    if (ground_touch) {
+        if (in_air) {
+            audiomgr->play_aud_buffer_from_source("player", "fall");
+        }
+        in_air = false;
+    }
+    else {
+        in_air = true;
+    }
+
     if (inputmgr->wasKeyPressed(GLFW_KEY_SPACE) and ground_touch) {
         player.vel.y = 5;
         //audiomgr->update_aud_source("1", player.pos, glm::vec3(0));

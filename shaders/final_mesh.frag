@@ -4,7 +4,7 @@
 #define MAX_PLIGHT_SHADOW_DISTANCE 20.0
 #define SHADOW_MUL_EPSILON 1.00
 #define SHADOW_ADD_EPSILON 0.01
-#define SHADOW_BLUR_EPSILON 0.008
+#define SHADOW_BLUR_EPSILON 0.007
 #define SHADOW_BLUR_SCALING 20
 #define SHADOW_BLUR_FALLOFF 0.6
 #define SHADOW_BLUR_SAMPLES 45
@@ -112,5 +112,5 @@ void main() {
 			diffuse = max(dot(fragNormal, normalize(lightVec)), diffuse);
 		}
 	}
-    outColor = texColor * diffuse * shadow;
+    outColor = texColor * (0.3 + 0.7 * diffuse) * shadow;
 }

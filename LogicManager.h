@@ -32,6 +32,7 @@ private:
 	std::vector<collutils::ConvexPolyPlane> static_bounds;
 
 	collutils::KinePointObj player;
+	bool in_air = false;
 
 	std::unordered_map<std::string, ObjectLogicData> lObjects;
 	std::vector<glm::vec4> plights;

@@ -155,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="aistructs.cpp" />
     <ClCompile Include="CollisionStructs.cpp" />
     <ClCompile Include="DAEParser.cpp" />
     <ClCompile Include="LogicManager.cpp" />
@@ -167,6 +168,7 @@
     <ClCompile Include="vkutils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="aistructs.h" />
     <ClInclude Include="CollisionStructs.h" />
     <ClInclude Include="LogicManager.h" />
     <ClInclude Include="ObjectLogicData.h" />
