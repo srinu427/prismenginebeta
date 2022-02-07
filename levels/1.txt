@@ -1,3 +1,20 @@
+# The First 4 Chars in a line shows the type of Geometry data. Each Geometry needs different set of data
+# Note: Vectors like Points and Directions are represented with 3 numbers. Ex. vec3(1, 0, 2) will be 1 0 2.
+# For ease of understanding vectors will be represented as (vec3)<vec_name> in this doc
+#
+#
+#PUVL - Rectangular plane data with center, U, V vectors(sides directions), and length along U,V vectors
+# Structure - PUVL <plane_thickness> <plane_friction> (vec3)<center> (vec3)<u> (vec3)<v> <u_length> <v_length> 
+#
+#PNSP - Convex Polygonal plane data with N points
+# Structure - PNSP <plane_thickness> <plane_friction> <N> N * <(vec3)point>
+#
+#CUVH - Cuboid data with center of cuboid, U,V vectors of top face, length along U,V, Height of cuboid
+# Structure - CUVH <face_thickness> <face_friction> (vec3)<center> (vec3)<u> (vec3)<v> <u_length> <v_length> <height>
+#
+#CNPH - Cylinder data with N-sided top Convex Polygonal Plane and Height of cylinder
+# Structure - CNPH <face_thickness> <face_friction> <N> N * <(vec3)top_face_point> <height>
+
 PUVL 0.1 10  0 0 0  0 0 1  1 0 0  10 5
 CUVH 0.1 10  0 2.95 0  0 0 1  1 0 0  10 3 0.1
 CUVH 0.1 10  -2 2.95 4  0 0 1  1 0 0  2 1 0.1
@@ -10,6 +27,3 @@ PUVL 0.1 10  2.5 3 0  0 0 1  0 1 0  10 6
 PUVL 0.1 10  -2.5 3 0  0 0 -1  0 1 0  10 6
 PUVL 0.1 10  0 3 -5  1 0 0  0 1 0  5 6
 PUVL 0.1 10  0 3 5  -1 0 0  0 1 0  5 6
-#PNSP
-#CUVH
-#CNPH
