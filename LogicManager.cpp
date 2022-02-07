@@ -2,8 +2,10 @@
 
 #include <math.h>
 #include <chrono>
-#include <iostream>
 #include <thread>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -15,6 +17,67 @@ LogicManager::LogicManager(PrismInputs* ipmgr, PrismAudioManager* audman, int lo
     audiomgr = audman;
     if (logicpolltime_ms != 0) logicPollTime = logicpolltime_ms;
     init();
+}
+
+void LogicManager::parseCollDataFile(std::string cfname)
+{
+    std::ifstream fr(cfname);
+    std::string line;
+    while (std::getline(fr, line)) {
+        std::istringstream lss(line);
+
+        char itype[5];
+        float plane_thickness;
+        float plane_friction;
+
+        try {
+            lss.read(itype, 4);
+            itype[4] = '\0';
+        }
+        catch (int eno) {
+            continue;
+        }
+        if (itype[0] != '#' && line.length() > 4) {
+            lss.seekg(4);
+            lss >> plane_thickness >> plane_friction;
+            if (strcmp(itype,"PUVL") == 0) {
+                glm::vec3 u, v, rcenter;
+                float ulen, vlen;
+                lss >> rcenter.x >> rcenter.y >> rcenter.z >> u.x >> u.y >> u.z >> v.x >> v.y >> v.z >> ulen >> vlen;
+                static_bounds.push_back(CollMesh(ConvexPolyPlane(rcenter, u, v, ulen, vlen, plane_thickness, plane_friction)));
+                continue;
+            }
+            if (strcmp(itype,"PNSP") == 0) {
+                int n;
+                lss >> n;
+                std::vector<glm::vec3> points(n);
+                for (int i = 0; i < n; i++) {
+                    lss >> points[i].x >> points[i].y >> points[i].z;
+                }
+                static_bounds.push_back(CollMesh(ConvexPolyPlane(points, plane_thickness, plane_friction)));
+                continue;
+            }
+            if (strcmp(itype,"CUVH") == 0) {
+                glm::vec3 u, v, rcenter;
+                float ulen, vlen, tlen;
+                lss >> rcenter.x >> rcenter.y >> rcenter.z >> u.x >> u.y >> u.z >> v.x >> v.y >> v.z >> ulen >> vlen >> tlen;
+                static_bounds.push_back(gen_cube_bplanes(rcenter, u, v, ulen, vlen, tlen, plane_thickness, plane_friction));
+                continue;
+            }
+            if (strcmp(itype,"CNPH") == 0) {
+                int n;
+                float h;
+                lss >> n;
+                std::vector<glm::vec3> points(n);
+                for (int i = 0; i < n; i++) {
+                    lss >> points[i].x >> points[i].y >> points[i].z;
+                }
+                lss >> h;
+                static_bounds.push_back(gen_cube_bplanes(ConvexPolyPlane(points, plane_thickness, plane_friction), h));
+                continue;
+            }
+        }
+    }
 }
 
 void LogicManager::init()
@@ -129,45 +192,29 @@ void LogicManager::init()
     plights[0] = glm::vec4(1.5, 1.5, 1.5, 1.0);
     plights[1] = glm::vec4(1.5, 1.5, 1.5, 1.0);
 
-    //add ground
-    ConvexPolyPlane ground = ConvexPolyPlane(glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), glm::vec3(1, 0, 0), 30, 30, 0.1, 10);
-    static_bounds.push_back(ground);
-    ConvexPolyPlane wall_col = ConvexPolyPlane(glm::vec3(0, 0, 5), glm::vec3(-1, 0, 0), glm::vec3(0, 1, 0), 30, 30, 0.1);
-    static_bounds.push_back(wall_col);
-    wall_col = ConvexPolyPlane(glm::vec3(0, 0, -5), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 30, 30, 0.1);
-    static_bounds.push_back(wall_col);
-    wall_col = ConvexPolyPlane(glm::vec3(5, 0, 0), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 30, 30, 0.1);
-    static_bounds.push_back(wall_col);
-    wall_col = ConvexPolyPlane(glm::vec3(-5, 0, 0), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), 30, 30, 0.1);
-    static_bounds.push_back(wall_col);
-    wall_col = ConvexPolyPlane(glm::vec3(0, 2.5, 5), glm::vec3(-1, 0, 0), glm::vec3(0, 1, 1), 30, 30, 0.1, 10);
-    static_bounds.push_back(wall_col);
-    std::vector<ConvexPolyPlane> cube1 = gen_cube_bplanes(glm::vec3(-2, 0.25, -2), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 1, 0.5, 1, 0.1, 10);
-    static_bounds.insert(static_bounds.begin(), cube1.begin(), cube1.end());
-    cube1 = gen_cube_bplanes(glm::vec3(-2, 0.75, -1), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 1, 0.5, 1, 0.1, 10);
-    static_bounds.insert(static_bounds.begin(), cube1.begin(), cube1.end());
-    cube1 = gen_cube_bplanes(glm::vec3(-2, 1.25, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 1, 0.5, 1, 0.1, 10);
-    static_bounds.insert(static_bounds.begin(), cube1.begin(), cube1.end());
-    cube1 = gen_cube_bplanes(glm::vec3(-3, 1.25, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 1, 0.5, 1, 0.1, 10);
-    static_bounds.insert(static_bounds.begin(), cube1.begin(), cube1.end());
-    cube1 = gen_cube_bplanes(glm::vec3(-4, 1.75, 0), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 1, 0.5, 1, 0.1, 10);
-    static_bounds.insert(static_bounds.begin(), cube1.begin(), cube1.end());
+    parseCollDataFile("levels/1.txt");
 
     for (int sbi = 0; sbi < static_bounds.size(); sbi++) {
-        new_bp_meshes.push_back(static_bounds[sbi].gen_mesh());
+        for (int ppi = 0; ppi < static_bounds[sbi].planes.size(); ppi++) {
+            new_bp_meshes.push_back(static_bounds[sbi].planes[ppi].gen_mesh());
+        }
+        
     }
     
     //add player
-    player.pos = glm::vec3(1, 1, 1);
-    player.vel = glm::vec3(0, 0, 0);
-    player.acc = glm::vec3(0, -10, 0);
+    player._cmesh = gen_cube_bplanes(glm::vec3(1, 1, 1), glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), 0.2, 0.25, 0.2, 0.1, 10);
+    //player._cmesh = CollMesh();
+    //player._cmesh.vertices.push_back(glm::vec3(1, 1, 1));
+    player._center = glm::vec3(1, 1.25, 1);
+    player._vel = glm::vec3(0, 0, 0);
+    player._acc = glm::vec3(0, -10, 0);
     in_air = true;
 
     audiomgr->add_aud_buffer("jump", "sounds/jump1.wav");
     audiomgr->add_aud_buffer("fall", "sounds/fall1.wav");
     audiomgr->add_aud_source("player");
     audiomgr->add_aud_source("1");
-    audiomgr->update_listener(player.pos, player.vel, currentCamDir, currentCamUp);
+    audiomgr->update_listener(player._center, player._vel, currentCamDir, currentCamUp);
 }
 
 void LogicManager::run()
@@ -257,11 +304,16 @@ void LogicManager::computeLogic(std::chrono::system_clock::time_point curr_time,
 
     bool ground_touch = false;
     int ground_plane = -1;
-    for (int pli = 0; pli < static_bounds.size(); pli++) if (static_bounds[pli].check_point_future(player.pos, glm::vec3(0), glm::vec3(0), 0).will_collide && glm::dot(static_bounds[pli].n, glm::vec3(0, 1, 0)) > 0.1) {
-        ground_touch = true;
-        ground_plane = pli;
-        break;
-    };
+    glm::vec3 ground_normal = glm::vec3(0);
+    for (int pli = 0; pli < static_bounds.size(); pli++){
+        SolidCollData tmp_scd = check_mesh_future(static_bounds[pli], player._cmesh, glm::vec3(0), glm::vec3(0), 0);
+        if (tmp_scd.will_collide && glm::dot(tmp_scd.bound_dir, glm::vec3(0, 1, 0)) > 0.1) {
+            ground_touch = true;
+            ground_plane = pli;
+            ground_normal = tmp_scd.bound_dir;
+            break;
+        }
+    }
     glm::vec3 inp_vel = glm::vec3(0);
 
     if (inputmgr->wasKeyPressed(GLFW_KEY_W)) inp_vel -= crelz;
@@ -269,25 +321,22 @@ void LogicManager::computeLogic(std::chrono::system_clock::time_point curr_time,
     if (inputmgr->wasKeyPressed(GLFW_KEY_A)) inp_vel -= crelx;
     if (inputmgr->wasKeyPressed(GLFW_KEY_D)) inp_vel += crelx;
     if (glm::length(inp_vel) > 0) {
-        inp_vel = glm::normalize(inp_vel) * 2.0f;
         if (ground_touch) {
-            //if (glm::dot(player.vel, glm::normalize(inp_vel)) < glm::length(inp_vel)) {
-            //    player.vel += glm::vec3(0, player.vel.y, 0) + glm::vec3(inp_vel.x, 0, inp_vel.z);
-            //}
-            player.vel = glm::vec3(0, player.vel.y, 0) + glm::vec3(inp_vel.x, 0, inp_vel.z);
-            player.acc.x = 0;
-            player.acc.z = 0;
+            //player._vel = glm::vec3(0, player._vel.y, 0) + project_vec_on_plane(glm::vec3(inp_vel.x, 0, inp_vel.z));
+            player._vel = 2.0f * glm::normalize(project_vec_on_plane(glm::vec3(inp_vel.x, 0, inp_vel.z), ground_normal));
+            player._acc.x = 0;
+            player._acc.z = 0;
         }
         else {
-            if (glm::dot(player.vel, glm::normalize(inp_vel)) < glm::length(inp_vel) * 1.0f) {
-                player.acc = glm::vec3(0, player.acc.y, 0) + glm::vec3(inp_vel.x, 0, inp_vel.z);
+            if (glm::dot(player._vel, glm::normalize(inp_vel)) < glm::length(inp_vel) * 1.0f) {
+                player._acc = glm::vec3(0, player._acc.y, 0) + 4.0f * glm::vec3(inp_vel.x, 0, inp_vel.z);
             }
         }
     }
 
     else {
-        player.acc.x = 0;
-        player.acc.z = 0;
+        player._acc.x = 0;
+        player._acc.z = 0;
     }
 
     if (ground_touch) {
@@ -301,16 +350,16 @@ void LogicManager::computeLogic(std::chrono::system_clock::time_point curr_time,
     }
 
     if (inputmgr->wasKeyPressed(GLFW_KEY_SPACE) and ground_touch) {
-        player.vel.y = 5;
+        player._vel.y = 5;
         //audiomgr->update_aud_source("1", player.pos, glm::vec3(0));
         audiomgr->play_aud_buffer_from_source("player", "jump");
     }
     //if (inputmgr->wasKeyPressed(GLFW_KEY_LEFT_CONTROL)) playVel = playVel - crely * (CAM_SPEED * logicDeltaT);
+    
+    player = progress_solid_kinematics(player, static_bounds, (glm::length(inp_vel) > 0) ? ground_plane : -1, logicDeltaT);
+    //player = progress_solid_kinematics(player, static_bounds, (glm::length(inp_vel) > 0) ? ground_plane : -1, 0.05);
 
-    //player = progress_kinematics(player, &static_bounds, (glm::length(inp_vel) > 0) ? ground_plane : -1, 0.05);
-    player = progress_kinematics(player, &static_bounds, (glm::length(inp_vel) > 0) ? ground_plane: -1, logicDeltaT);
-    //std::cout << player.vel.x << ',' << player.vel.y << ',' << player.vel.z << '\n';
-    currentCamEye = player.pos + glm::vec3(0, 0.5, 0);
+    currentCamEye = player._center;
     currentCamDir = glm::vec3(glm::rotate(glm::mat4(1.0f),
         glm::radians(MOUSE_SENSITIVITY_X * float(inputmgr->dmx)),
         crely) * glm::vec4(currentCamDir, 0.0f));
@@ -321,8 +370,8 @@ void LogicManager::computeLogic(std::chrono::system_clock::time_point curr_time,
             glm::radians(MOUSE_SENSITIVITY_Y * float(inputmgr->dmy)),
             crelx) * glm::vec4(currentCamDir, 0.0f));
     }
-    audiomgr->update_aud_source("player", player.pos, player.vel);
-    audiomgr->update_listener(player.pos, player.vel, currentCamDir, currentCamUp);
+    audiomgr->update_aud_source("player", player._center, player._vel);
+    audiomgr->update_listener(player._center, player._vel, currentCamDir, currentCamUp);
     
     lObjects["obama"].updateAnim("rotateprism", int(logicDeltaT * 1000));
 

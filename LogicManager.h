@@ -5,12 +5,16 @@
 #include "ObjectLogicData.h"
 #include "CollisionStructs.h"
 
+#include <regex>
+
+
 class LogicManager
 {
 public:
 	LogicManager(PrismInputs* ipmgr, PrismAudioManager* audman, int logicpolltime_ms=1);
 	void run();
 	void stop();
+	void parseCollDataFile(std::string cfname);
 	void pushToRenderer(PrismRenderer* renderer);
 private:
 	PrismInputs* inputmgr;
@@ -29,9 +33,10 @@ private:
 
 	glm::vec3 sunlightDir = (glm::vec3(0.0f, 0.2f, 0.0f));
 
-	std::vector<collutils::ConvexPolyPlane> static_bounds;
+	std::vector<collutils::CollMesh> static_bounds;
 
-	collutils::KinePointObj player;
+	collutils::KinePointObj player_point;
+	collutils::KineSolidObj player;
 	bool in_air = false;
 
 	std::unordered_map<std::string, ObjectLogicData> lObjects;
@@ -44,4 +49,9 @@ private:
 	std::chrono::system_clock::time_point lastLogicComputeTime;
 	bool started = false;
 	std::mutex rpush_mut;
+
+	std::regex plane_uv_regex;
+	std::regex plane_point_regex;
+	std::regex cube_uv_regex;
+	std::regex cube_plane_regex;
 };
