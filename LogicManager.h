@@ -49,9 +49,4 @@ private:
 	std::chrono::system_clock::time_point lastLogicComputeTime;
 	bool started = false;
 	std::mutex rpush_mut;
-
-	std::regex plane_uv_regex;
-	std::regex plane_point_regex;
-	std::regex cube_uv_regex;
-	std::regex cube_plane_regex;
 };

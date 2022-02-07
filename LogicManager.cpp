@@ -24,56 +24,59 @@ void LogicManager::parseCollDataFile(std::string cfname)
     std::ifstream fr(cfname);
     std::string line;
     while (std::getline(fr, line)) {
+        if (line.length() < 5) continue;
+
         std::istringstream lss(line);
 
         char itype[5];
         float plane_thickness;
         float plane_friction;
 
-        try {
-            lss.read(itype, 4);
-            itype[4] = '\0';
-        }
-        catch (int eno) {
-            continue;
-        }
-        if (itype[0] != '#' && line.length() > 4) {
-            lss.seekg(4);
-            lss >> plane_thickness >> plane_friction;
-            if (strcmp(itype,"PUVL") == 0) {
-                glm::vec3 u, v, rcenter;
-                float ulen, vlen;
-                lss >> rcenter.x >> rcenter.y >> rcenter.z >> u.x >> u.y >> u.z >> v.x >> v.y >> v.z >> ulen >> vlen;
-                static_bounds.push_back(CollMesh(ConvexPolyPlane(rcenter, u, v, ulen, vlen, plane_thickness, plane_friction)));
-                continue;
-            }
-            if (strcmp(itype,"PNSP") == 0) {
-                int n;
-                lss >> n;
-                std::vector<glm::vec3> points(n);
-                for (int i = 0; i < n; i++) {
-                    lss >> points[i].x >> points[i].y >> points[i].z;
+        lss.read(itype, 4);
+        itype[4] = '\0';
+
+        if (itype[0] != '#') {
+            try {
+                lss.seekg(4);
+                lss >> plane_thickness >> plane_friction;
+                if (strcmp(itype, "PUVL") == 0) {
+                    glm::vec3 u, v, rcenter;
+                    float ulen, vlen;
+                    lss >> rcenter.x >> rcenter.y >> rcenter.z >> u.x >> u.y >> u.z >> v.x >> v.y >> v.z >> ulen >> vlen;
+                    static_bounds.push_back(CollMesh(ConvexPolyPlane(rcenter, u, v, ulen, vlen, plane_thickness, plane_friction)));
+                    continue;
                 }
-                static_bounds.push_back(CollMesh(ConvexPolyPlane(points, plane_thickness, plane_friction)));
-                continue;
-            }
-            if (strcmp(itype,"CUVH") == 0) {
-                glm::vec3 u, v, rcenter;
-                float ulen, vlen, tlen;
-                lss >> rcenter.x >> rcenter.y >> rcenter.z >> u.x >> u.y >> u.z >> v.x >> v.y >> v.z >> ulen >> vlen >> tlen;
-                static_bounds.push_back(gen_cube_bplanes(rcenter, u, v, ulen, vlen, tlen, plane_thickness, plane_friction));
-                continue;
-            }
-            if (strcmp(itype,"CNPH") == 0) {
-                int n;
-                float h;
-                lss >> n;
-                std::vector<glm::vec3> points(n);
-                for (int i = 0; i < n; i++) {
-                    lss >> points[i].x >> points[i].y >> points[i].z;
+                if (strcmp(itype, "PNSP") == 0) {
+                    int n;
+                    lss >> n;
+                    std::vector<glm::vec3> points(n);
+                    for (int i = 0; i < n; i++) {
+                        lss >> points[i].x >> points[i].y >> points[i].z;
+                    }
+                    static_bounds.push_back(CollMesh(ConvexPolyPlane(points, plane_thickness, plane_friction)));
+                    continue;
                 }
-                lss >> h;
-                static_bounds.push_back(gen_cube_bplanes(ConvexPolyPlane(points, plane_thickness, plane_friction), h));
+                if (strcmp(itype, "CUVH") == 0) {
+                    glm::vec3 u, v, rcenter;
+                    float ulen, vlen, tlen;
+                    lss >> rcenter.x >> rcenter.y >> rcenter.z >> u.x >> u.y >> u.z >> v.x >> v.y >> v.z >> ulen >> vlen >> tlen;
+                    static_bounds.push_back(gen_cube_bplanes(rcenter, u, v, ulen, vlen, tlen, plane_thickness, plane_friction));
+                    continue;
+                }
+                if (strcmp(itype, "CNPH") == 0) {
+                    int n;
+                    float h;
+                    lss >> n;
+                    std::vector<glm::vec3> points(n);
+                    for (int i = 0; i < n; i++) {
+                        lss >> points[i].x >> points[i].y >> points[i].z;
+                    }
+                    lss >> h;
+                    static_bounds.push_back(gen_cube_bplanes(ConvexPolyPlane(points, plane_thickness, plane_friction), h));
+                    continue;
+                }
+            }
+            catch (int eno) {
                 continue;
             }
         }
